@@ -3,21 +3,24 @@ import './App.css';
 import React, { useState, useEffect } from 'react';
 
 export default function WordFinderApp() {
-  const [currentView, setCurrentView] = useState('landing');
+	
+  // The state
+  const [pageToDisplay, setPageToDisplay] = useState("landing");
   const [rows, setRows] = useState(15);
   const [columns, setColumns] = useState(15);
-  const [words, setWords] = useState('');
+  const [words, setWords] = useState("");
 
   const handleButtonClick = (viewName) => {
-    setCurrentView(viewName);
+    setPageToDisplay(viewName);
   };
 
   return (
     <div className="App-header">
-      {currentView === 'landing' && (
+	
+      {pageToDisplay === "landing" && (
         <LandingPage onButtonClick={handleButtonClick} />
       )}
-      {currentView === 'configuration' && (
+      {pageToDisplay === "configuration" && (
         <ConfigurationPage
           onButtonClick={handleButtonClick}
           rows={rows}
@@ -28,7 +31,7 @@ export default function WordFinderApp() {
           setWords={setWords}
         />
       )}
-      {currentView === 'generate' && (
+      {pageToDisplay === "wordFinder" && (
         <WordFinderPage
           onButtonClick={handleButtonClick}
           rows={rows}
@@ -40,55 +43,115 @@ export default function WordFinderApp() {
   );
 }
 
+
 // The landing page
 function LandingPage({ onButtonClick }) {
   return (
     <header className="App-header">
       <img src={logo} className="App-logo" alt="logo" />
       <h1>Word Finder</h1>
-      <StartButton onClick={() => onButtonClick('configuration')} />
+      <StartButton onClick={() => onButtonClick("configuration")} />
     </header>
   );
 }
 
-// The configuration page
+
+// The configuration page.
 function ConfigurationPage({ onButtonClick, rows, setRows, columns, setColumns, words, setWords }) {
   return (
-    <div className="configuration-container">
-      <WordInput value={words} onChange={(e) => setWords(e.target.value)} />
-      <RowsInput value={rows} onChange={(e) => setRows(e.target.value)} />
-      <ColumnsInput value={columns} onChange={(e) => setColumns(e.target.value)} />
-      <GenerateButton onClick={() => onButtonClick('generate')} />
+   <div className="configuration-container">
+      <h1>Configuration</h1>
+      
+      <div className="form-group">
+        <label htmlFor="words-input">Words</label>
+        <textarea
+          id="words-input"
+          placeholder="Enter words here. Each word on a new line"
+          rows="10"
+          cols="40"
+          value={words}
+          onChange={(e) => setWords(e.target.value)}
+          className="input-textarea"
+        />
+      </div>
+
+      <div className="form-group">
+        <label htmlFor="rows-input">Number of Rows</label>
+        <input
+          id="rows-input"
+          type="number"
+          min="5"
+          max="20"
+          step="1"
+          value={rows}
+          onChange={(e) => setRows(e.target.value)}
+          className="input-number"
+        />
+      </div>
+
+      <div className="form-group">
+        <label htmlFor="columns-input">Number of Columns</label>
+        <input
+          id="columns-input"
+          type="number"
+          min="5"
+          max="20"
+          step="1"
+          value={columns}
+          onChange={(e) => setColumns(e.target.value)}
+          className="input-number"
+        />
+      </div>
+
+      <div className="button-group">
+        <GenerateButton onClick={() => onButtonClick("wordFinder")} />
+      </div>
     </div>
   );
 }
 
+
 // The word finder page. Displays the grid and words to find.
 function WordFinderPage({ onButtonClick, rows, columns, words }) {
+	
+  // Word finder state.  
   const [gridData, setGridData] = useState([]);
   const [placedWords, setPlacedWords] = useState({});
+  const [selectedCells, setSelectedCells] = useState({});
+
+  // Handle the clicking of a table cell.  
+  const handleClick = (rowIndex, cellIndex) => {
+    const cellKey = `${rowIndex}.${cellIndex}`;
+    setSelectedCells((prev) => ({
+      ...prev,
+      [cellKey]: !prev[cellKey],
+    }));
+  };
 
   useEffect(() => {
-    const wordsArray = words.split('\n').map((word) => word.trim()).filter((word) => word !== '');
+    const wordsArray = words.split("\n").map((word) => word.trim()).filter((word) => word !== "");
 
+    // Create the REST service JSON request.
     const requestData = {
-      rows: parseInt(rows, 10),
-      columns: parseInt(columns, 10),
+      rows: parseInt(rows),
+      columns: parseInt(columns),
       words: wordsArray,
     };
 
-    const postData = async (url = '', data = {}) => {
+
+    const postData = async (url = "", data = {}) => {
       const response = await fetch(url, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(data),
       });
       return response.json();
     };
 
-    postData('http://localhost:8080/wordfinder', requestData).then((data) => {
+    // POST the data.
+    postData("http://localhost:8080/wordfinder", requestData).then((data) => {
       const gridArray = JSON.parse(data.theGrid);
       setGridData(gridArray);
       setPlacedWords(data.placedWords);
@@ -97,64 +160,77 @@ function WordFinderPage({ onButtonClick, rows, columns, words }) {
 
   return (
     <div className="configuration-container">
+      <h1>Find Words</h1>
       <PlacedWords words={placedWords} />
       <div className="grid-container">
-        <Grid grid={gridData} />
+        <Grid grid={gridData} handleClick={handleClick} selectedCells={selectedCells} />
       </div>
-      <BackButton onClick={() => onButtonClick('configuration')} />
+	  
+      <BackButton onClick={() => onButtonClick("configuration")} />
     </div>
   );
 }
 
-// The grid component
-function Grid({ grid }) {
+
+// The word finder grid.  Each cell is a button which can be toggled on and off.
+function Grid({ grid, handleClick, selectedCells }) {
   return (
-    <table>
-      <tbody>
-        {grid.map((row, rowIndex) => (
-          <tr key={rowIndex}>
-            {row.map((cell, cellIndex) => (
-              <td key={cellIndex}>{cell}</td>
-            ))}
-          </tr>
-        ))}
-      </tbody>
-    </table>
+		<table>
+		  <tbody>
+			{grid.map((row, rowIndex) => (
+			  <tr key={rowIndex}>
+				{row.map((cell, cellIndex) => {
+				  const cellKey = `${rowIndex}.${cellIndex}`;
+				  const isSelected = selectedCells[cellKey];
+
+				  return (
+					<td key={cellIndex}>
+					  <button
+						className={`cell-button ${isSelected ? "selected" : ""}`}
+						onClick={() => handleClick(rowIndex, cellIndex)}
+					  >
+						{cell}
+					  </button>
+					</td>
+				  );
+				})}
+			  </tr>
+			))}
+		  </tbody>
+		</table>
   );
 }
 
-// A start button
+
+// A start button.  Used for nagivation from the landing screen to the configuration screen.
 function StartButton({ onClick }) {
   return (
-    <button className="button startButton" onClick={onClick}>
-      Start
-    </button>
+    <button className="button startButton" onClick={onClick}>Start</button>
   );
 }
+
 
 // A button to generate the word finder grid
 function GenerateButton({ onClick }) {
   return (
-    <button className="button generateButton" onClick={onClick}>
-      Generate Word Finder Grid
-    </button>
+    <button className="button generateButton" onClick={onClick}>Generate Word Finder Grid</button>
   );
 }
+
 
 // A button to go back to the configuration screen
 function BackButton({ onClick }) {
   return (
-    <button className="button generateButton" onClick={onClick}>
-      Back to Configuration
-    </button>
+    <button className="button generateButton" onClick={onClick}>Back to Configuration</button>
   );
 }
+
 
 // Word input component
 function WordInput({ value, onChange }) {
   return (
     <div>
-      <h2>Words</h2>
+      Words
       <textarea
         placeholder="Enter words here. Each word on a new line"
         rows="20"
@@ -166,15 +242,16 @@ function WordInput({ value, onChange }) {
   );
 }
 
+
 // Rows input component
 function RowsInput({ value, onChange }) {
   return (
-    <div className="App">
-      <h2>Number of Rows</h2>
+    <div>
+      <p>Number of Rows</p>
       <input
         type="number"
         min="5"
-        max="30"
+        max="20"
         step="1"
         value={value}
         onChange={onChange}
@@ -183,15 +260,16 @@ function RowsInput({ value, onChange }) {
   );
 }
 
-// Columns input component
+
+// Number of columns input component
 function ColumnsInput({ value, onChange }) {
   return (
-    <div className="App">
-      <h2>Number of Columns</h2>
+    <div>
+      <p>Number of Columns</p>
       <input
         type="number"
         min="5"
-        max="30"
+        max="20"
         step="1"
         value={value}
         onChange={onChange}
@@ -200,14 +278,16 @@ function ColumnsInput({ value, onChange }) {
   );
 }
 
-// Placed words component
+
+// Placed words component.  Displays the words placed in the grid as 
+// a comma delimited list.
 function PlacedWords({ words }) {
   const wordList = Object.keys(words);
 
   return (
     <div className="word-list">
       <h3>Words to Find:</h3>
-      <p>{wordList.join(', ')}</p>
+      <p>{wordList.join(", ")}</p>
     </div>
   );
 }
