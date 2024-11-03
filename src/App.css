@@ -226,6 +226,10 @@ th {
   text-align: center;
 }
 
-.cell-button.selected {
-  background-color: green; 
+.cell-button.part-of-word-selected {
+    background-color: green; 
+  }
+
+.cell-button.not-part-of-word-selected {
+  background-color: red; 
 }
