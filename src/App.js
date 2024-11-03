@@ -163,7 +163,7 @@ function WordFinderPage({ onButtonClick, rows, columns, words }) {
       <h1>Find Words</h1>
       <PlacedWords words={placedWords} />
       <div className="grid-container">
-        <Grid grid={gridData} handleClick={handleClick} selectedCells={selectedCells} />
+        <Grid grid={gridData} placedWords={placedWords} handleClick={handleClick} selectedCells={selectedCells} />
       </div>
 	  
       <BackButton onClick={() => onButtonClick("configuration")} />
@@ -173,7 +173,7 @@ function WordFinderPage({ onButtonClick, rows, columns, words }) {
 
 
 // The word finder grid.  Each cell is a button which can be toggled on and off.
-function Grid({ grid, handleClick, selectedCells }) {
+function Grid({ grid, placedWords, handleClick, selectedCells }) {
   return (
 		<table>
 		  <tbody>
@@ -183,10 +183,17 @@ function Grid({ grid, handleClick, selectedCells }) {
 				  const cellKey = `${rowIndex}.${cellIndex}`;
 				  const isSelected = selectedCells[cellKey];
 
+          // Get a list of all the word cells and then determine if the current cell is part of a word
+          const allPlacedWordCells = Object.values(placedWords)
+            .flat()
+            .map(cell => `${cell.row}.${cell.column}`);
+
+          const isPartOfWord = allPlacedWordCells.includes(cellKey);
+
 				  return (
 					<td key={cellIndex}>
 					  <button
-						className={`cell-button ${isSelected ? "selected" : ""}`}
+            className={`cell-button ${isSelected ? (isPartOfWord ? "part-of-word-selected" : "not-part-of-word-selected") : ""}`}
 						onClick={() => handleClick(rowIndex, cellIndex)}
 					  >
 						{cell}
@@ -200,7 +207,6 @@ function Grid({ grid, handleClick, selectedCells }) {
 		</table>
   );
 }
-
 
 // A start button.  Used for nagivation from the landing screen to the configuration screen.
 function StartButton({ onClick }) {
