@@ -118,14 +118,22 @@ function WordFinderPage({ onButtonClick, rows, columns, words }) {
   const [gridData, setGridData] = useState([]);
   const [placedWords, setPlacedWords] = useState({});
   const [selectedCells, setSelectedCells] = useState({});
+  const [correctSelectionAttempts, setCorrectSelectionAttempts] = useState(0);
+  const [incorrectSelectionAttempts, setIncorrectSelectionAttempts] = useState(0);
 
   // Handle the clicking of a table cell.  
-  const handleClick = (rowIndex, cellIndex) => {
+  const handleClick = (rowIndex, cellIndex, isPartOfWord) => {
     const cellKey = `${rowIndex}.${cellIndex}`;
     setSelectedCells((prev) => ({
       ...prev,
       [cellKey]: !prev[cellKey],
     }));
+
+    if (isPartOfWord) {
+      setCorrectSelectionAttempts((prevCount) => prevCount + 1);
+    } else {
+      setIncorrectSelectionAttempts((prevCount) => prevCount + 1);
+    }
   };
 
   useEffect(() => {
@@ -162,8 +170,16 @@ function WordFinderPage({ onButtonClick, rows, columns, words }) {
     <div className="configuration-container">
       <h1>Find Words</h1>
       <PlacedWords words={placedWords} />
+      <SelectionAttempts correctSelectionAttempts={correctSelectionAttempts} incorrectSelectionAttempts={incorrectSelectionAttempts} />
       <div className="grid-container">
-        <Grid grid={gridData} placedWords={placedWords} handleClick={handleClick} selectedCells={selectedCells} />
+      <Grid grid={gridData} 
+              placedWords={placedWords} 
+              handleClick={handleClick} 
+              selectedCells={selectedCells} 
+              correctSelectionAttempts={correctSelectionAttempts} 
+              setCorrectSelectionAttempts={setCorrectSelectionAttempts} 
+              incorrectSelectionAttempts={incorrectSelectionAttempts} 
+              setIncorrectSelectionAttempts={setIncorrectSelectionAttempts}/>
       </div>
 	  
       <BackButton onClick={() => onButtonClick("configuration")} />
@@ -173,7 +189,7 @@ function WordFinderPage({ onButtonClick, rows, columns, words }) {
 
 
 // The word finder grid.  Each cell is a button which can be toggled on and off.
-function Grid({ grid, placedWords, handleClick, selectedCells }) {
+function Grid({ grid, placedWords, handleClick, selectedCells, correctSelectionAttempts,setCorrectSelectionAttempts, incorrectSelectionAttempts,setIncorrectSelectionAttempts }) {
   return (
 		<table>
 		  <tbody>
@@ -194,7 +210,7 @@ function Grid({ grid, placedWords, handleClick, selectedCells }) {
 					<td key={cellIndex}>
 					  <button
             className={`cell-button ${isSelected ? (isPartOfWord ? "part-of-word-selected" : "not-part-of-word-selected") : ""}`}
-						onClick={() => handleClick(rowIndex, cellIndex)}
+						onClick={() => handleClick(rowIndex, cellIndex, isPartOfWord)}
 					  >
 						{cell}
 					  </button>
@@ -294,6 +310,19 @@ function PlacedWords({ words }) {
     <div className="word-list">
       <h3>Words to Find:</h3>
       <p>{wordList.join(", ")}</p>
+    </div>
+  );
+}
+
+
+function SelectionAttempts({ correctSelectionAttempts,incorrectSelectionAttempts }) {
+  return (
+    <div className="selectionAttempts">
+      <h3>Correct:</h3>
+      <p>{correctSelectionAttempts}</p>
+
+      <h3>Incorrect:</h3>
+      <p>{incorrectSelectionAttempts}</p>
     </div>
   );
 }
