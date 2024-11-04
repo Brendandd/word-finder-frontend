@@ -233,3 +233,24 @@ th {
 .cell-button.not-part-of-word-selected {
   background-color: red; 
 }
+
+.selectionAttempts {
+    display: flex;
+    gap: 20px; 
+    color: #333; 
+    font-size: 16px; 
+    text-align: center; 
+  }
+  
+  .attempt {
+    display: flex;
+    align-items: center;
+    gap: 5px; 
+  }
+  
+  .selectionAttempts h3, 
+  .selectionAttempts p {
+    margin: 0;
+    font-weight: bold; 
+    color: inherit; 
+  }
