@@ -1,35 +1,28 @@
 # Word Finder Front End
 
-The front-end code for a word finder application written in react.  Not yet finished.
-
+The front-end code for a Word Finder application written in React. This application is still under development and serves as a learning opportunity for React.
 
 ## Getting Started
 
-These instructions will get you a copy of the project up and running on your local machine for development purposes.
-
+Follow these instructions to set up the project on your local machine for development purposes.
 
 ### Installation
 
-A step by step guide that will tell you how to get the development environment up and running.
-
-In the project directory, you can run:
+To set up the development environment, make sure the back-end application is running. Then, navigate to the project directory and run:
 
 ```
-npm start
+npm install
+npm run start
 ```
-
 
 ## Usage
 
-To access the word finder app.
-
-URL
+To access the Word Finder app, open your browser and navigate to:
 
 ```
-http://localhost:3000 to view it in your browser.
+http://localhost:3000
 ```
-
-
+You will be able to view and interact with the application in your browser.
 
 
 
