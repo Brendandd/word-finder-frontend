@@ -175,11 +175,7 @@ function WordFinderPage({ onButtonClick, rows, columns, words }) {
       <Grid grid={gridData} 
               placedWords={placedWords} 
               handleClick={handleClick} 
-              selectedCells={selectedCells} 
-              correctSelectionAttempts={correctSelectionAttempts} 
-              setCorrectSelectionAttempts={setCorrectSelectionAttempts} 
-              incorrectSelectionAttempts={incorrectSelectionAttempts} 
-              setIncorrectSelectionAttempts={setIncorrectSelectionAttempts}/>
+              selectedCells={selectedCells} />
       </div>
 	  
       <BackButton onClick={() => onButtonClick("configuration")} />
@@ -189,7 +185,7 @@ function WordFinderPage({ onButtonClick, rows, columns, words }) {
 
 
 // The word finder grid.  Each cell is a button which can be toggled on and off.
-function Grid({ grid, placedWords, handleClick, selectedCells, correctSelectionAttempts,setCorrectSelectionAttempts, incorrectSelectionAttempts,setIncorrectSelectionAttempts }) {
+function Grid({ grid, placedWords, handleClick, selectedCells}) {
   return (
 		<table>
 		  <tbody>
