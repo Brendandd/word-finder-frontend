@@ -120,6 +120,7 @@ function WordFinderPage({ onButtonClick, rows, columns, words }) {
   const [selectedCells, setSelectedCells] = useState({});
   const [correctSelectionAttempts, setCorrectSelectionAttempts] = useState(0);
   const [incorrectSelectionAttempts, setIncorrectSelectionAttempts] = useState(0);
+  const [selectedWords, setSelectedWords] = useState([]);
 
   // Handle the clicking of a table cell.  
   const handleClick = (rowIndex, cellIndex, isPartOfWord) => {
@@ -134,6 +135,22 @@ function WordFinderPage({ onButtonClick, rows, columns, words }) {
     } else {
       setIncorrectSelectionAttempts((prevCount) => prevCount + 1);
     }
+
+    updateSelectedWords();
+  };
+  useEffect(() => {
+    updateSelectedWords();
+  }, [selectedCells]);
+
+    const updateSelectedWords = () => {
+      const fullySelectedWords = Object.keys(placedWords).filter((word) => {
+        const wordCells = placedWords[word].map(
+          (cell) => `${cell.row}.${cell.column}`
+        );
+        return wordCells.every((cellKey) => selectedCells[cellKey]);
+      });
+    
+      setSelectedWords(fullySelectedWords);
   };
 
   useEffect(() => {
@@ -169,7 +186,7 @@ function WordFinderPage({ onButtonClick, rows, columns, words }) {
   return (
     <div className="configuration-container">
       <h1>Find Words</h1>
-      <PlacedWords words={placedWords} />
+      <PlacedWords words={placedWords} selectedWords={selectedWords} />
       <SelectionAttempts correctSelectionAttempts={correctSelectionAttempts} incorrectSelectionAttempts={incorrectSelectionAttempts} />
       <div className="grid-container">
       <Grid grid={gridData} 
@@ -299,13 +316,24 @@ function ColumnsInput({ value, onChange }) {
 
 // Placed words component.  Displays the words placed in the grid as 
 // a comma delimited list.
-function PlacedWords({ words }) {
+function PlacedWords({ words,selectedWords  }) {
   const wordList = Object.keys(words);
 
   return (
     <div className="word-list">
       <h3>Words to Find:</h3>
-      <p>{wordList.join(", ")}</p>
+      <ul>
+        {wordList.map((word) => (
+          <li
+            key={word}
+            style={{
+              textDecoration: selectedWords.includes(word) ? "line-through" : "none",
+            }}
+          >
+            {word}
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
