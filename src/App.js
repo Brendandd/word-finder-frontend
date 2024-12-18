@@ -3,7 +3,7 @@ import './App.css';
 import React, { useState, useEffect } from 'react';
 
 export default function WordFinderApp() {
-	
+
   // The state
   const [pageToDisplay, setPageToDisplay] = useState("landing");
   const [rows, setRows] = useState(15);
@@ -16,7 +16,7 @@ export default function WordFinderApp() {
 
   return (
     <div className="App-header">
-	
+
       {pageToDisplay === "landing" && (
         <LandingPage onButtonClick={handleButtonClick} />
       )}
@@ -59,9 +59,9 @@ function LandingPage({ onButtonClick }) {
 // The configuration page.
 function ConfigurationPage({ onButtonClick, rows, setRows, columns, setColumns, words, setWords }) {
   return (
-   <div className="configuration-container">
+    <div className="configuration-container">
       <h1>Configuration</h1>
-      
+
       <div className="form-group">
         <label htmlFor="words-input">Words</label>
         <textarea
@@ -113,7 +113,7 @@ function ConfigurationPage({ onButtonClick, rows, setRows, columns, setColumns, 
 
 // The word finder page. Displays the grid and words to find.
 function WordFinderPage({ onButtonClick, rows, columns, words }) {
-	
+
   // Word finder state.  
   const [gridData, setGridData] = useState([]);
   const [placedWords, setPlacedWords] = useState({});
@@ -142,15 +142,15 @@ function WordFinderPage({ onButtonClick, rows, columns, words }) {
     updateSelectedWords();
   }, [selectedCells]);
 
-    const updateSelectedWords = () => {
-      const fullySelectedWords = Object.keys(placedWords).filter((word) => {
-        const wordCells = placedWords[word].map(
-          (cell) => `${cell.row}.${cell.column}`
-        );
-        return wordCells.every((cellKey) => selectedCells[cellKey]);
-      });
-    
-      setSelectedWords(fullySelectedWords);
+  const updateSelectedWords = () => {
+    const fullySelectedWords = Object.keys(placedWords).filter((word) => {
+      const wordCells = placedWords[word].map(
+        (cell) => `${cell.row}.${cell.column}`
+      );
+      return wordCells.every((cellKey) => selectedCells[cellKey]);
+    });
+
+    setSelectedWords(fullySelectedWords);
   };
 
   useEffect(() => {
@@ -180,6 +180,7 @@ function WordFinderPage({ onButtonClick, rows, columns, words }) {
       const gridArray = JSON.parse(data.theGrid);
       setGridData(gridArray);
       setPlacedWords(data.placedWords);
+      console.log("Calling backend service");
     });
   }, [rows, columns, words]);
 
@@ -189,12 +190,12 @@ function WordFinderPage({ onButtonClick, rows, columns, words }) {
       <PlacedWords words={placedWords} selectedWords={selectedWords} />
       <SelectionAttempts correctSelectionAttempts={correctSelectionAttempts} incorrectSelectionAttempts={incorrectSelectionAttempts} />
       <div className="grid-container">
-      <Grid grid={gridData} 
-              placedWords={placedWords} 
-              handleClick={handleClick} 
-              selectedCells={selectedCells} />
+        <Grid grid={gridData}
+          placedWords={placedWords}
+          handleClick={handleClick}
+          selectedCells={selectedCells} />
       </div>
-	  
+
       <BackButton onClick={() => onButtonClick("configuration")} />
     </div>
   );
@@ -202,38 +203,38 @@ function WordFinderPage({ onButtonClick, rows, columns, words }) {
 
 
 // The word finder grid.  Each cell is a button which can be toggled on and off.
-function Grid({ grid, placedWords, handleClick, selectedCells}) {
+function Grid({ grid, placedWords, handleClick, selectedCells }) {
   return (
-		<table>
-		  <tbody>
-			{grid.map((row, rowIndex) => (
-			  <tr key={rowIndex}>
-				{row.map((cell, cellIndex) => {
-				  const cellKey = `${rowIndex}.${cellIndex}`;
-				  const isSelected = selectedCells[cellKey];
+    <table>
+      <tbody>
+        {grid.map((row, rowIndex) => (
+          <tr key={rowIndex}>
+            {row.map((cell, cellIndex) => {
+              const cellKey = `${rowIndex}.${cellIndex}`;
+              const isSelected = selectedCells[cellKey];
 
-          // Get a list of all the word cells and then determine if the current cell is part of a word
-          const allPlacedWordCells = Object.values(placedWords)
-            .flat()
-            .map(cell => `${cell.row}.${cell.column}`);
+              // Get a list of all the word cells and then determine if the current cell is part of a word
+              const allPlacedWordCells = Object.values(placedWords)
+                .flat()
+                .map(cell => `${cell.row}.${cell.column}`);
 
-          const isPartOfWord = allPlacedWordCells.includes(cellKey);
+              const isPartOfWord = allPlacedWordCells.includes(cellKey);
 
-				  return (
-					<td key={cellIndex}>
-					  <button
-            className={`cell-button ${isSelected ? (isPartOfWord ? "part-of-word-selected" : "not-part-of-word-selected") : ""}`}
-						onClick={() => handleClick(rowIndex, cellIndex, isPartOfWord)}
-					  >
-						{cell}
-					  </button>
-					</td>
-				  );
-				})}
-			  </tr>
-			))}
-		  </tbody>
-		</table>
+              return (
+                <td key={cellIndex}>
+                  <button
+                    className={`cell-button ${isSelected ? (isPartOfWord ? "part-of-word-selected" : "not-part-of-word-selected") : ""}`}
+                    onClick={() => handleClick(rowIndex, cellIndex, isPartOfWord)}
+                  >
+                    {cell}
+                  </button>
+                </td>
+              );
+            })}
+          </tr>
+        ))}
+      </tbody>
+    </table>
   );
 }
 
@@ -316,7 +317,7 @@ function ColumnsInput({ value, onChange }) {
 
 // Placed words component.  Displays the words placed in the grid as 
 // a comma delimited list.
-function PlacedWords({ words,selectedWords  }) {
+function PlacedWords({ words, selectedWords }) {
   const wordList = Object.keys(words);
 
   return (
@@ -339,7 +340,7 @@ function PlacedWords({ words,selectedWords  }) {
 }
 
 
-function SelectionAttempts({ correctSelectionAttempts,incorrectSelectionAttempts }) {
+function SelectionAttempts({ correctSelectionAttempts, incorrectSelectionAttempts }) {
   return (
     <div className="selectionAttempts">
       <h3>Correct:</h3>
